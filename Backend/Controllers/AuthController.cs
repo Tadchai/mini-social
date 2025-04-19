@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
-using api.ViewModels;
+using Backend.ViewModels;
 using Backend.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -55,10 +55,12 @@ namespace Backend.Controllers
 
             var claims = new[]
             {
-            new Claim(JwtRegisteredClaimNames.Sub, userId),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString())
-        };
+                new Claim(JwtRegisteredClaimNames.Sub, userId),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(JwtRegisteredClaimNames.Iat,
+                    new DateTimeOffset(DateTime.UtcNow).ToUnixTimeSeconds().ToString(),
+                    ClaimValueTypes.Integer64)
+            };
 
             var token = new JwtSecurityToken(
                 claims: claims,
@@ -75,10 +77,10 @@ namespace Backend.Controllers
         {
             var userModel = await _context.Users.AnyAsync(u => u.Username == request.Username);
             if (userModel)
-                return new JsonResult(new MessageResponse { Message = "Name is already in use.", StatusCode = HttpStatusCode.Conflict });
+                return new JsonResult(new ApiResponse<object> { Message = "Name is already in use.", StatusCode = HttpStatusCode.Conflict });
 
             if (request.Password != request.confirmPassword)
-                return new JsonResult(new MessageResponse { Message = "Password do not match.", StatusCode = HttpStatusCode.Conflict });
+                return new JsonResult(new ApiResponse<object> { Message = "Password do not match.", StatusCode = HttpStatusCode.Conflict });
 
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -98,12 +100,12 @@ namespace Backend.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return new JsonResult(new MessageResponse { Message = "User Created successfully.", StatusCode = HttpStatusCode.Created });
+                    return new JsonResult(new ApiResponse<object> { Message = "User Created successfully.", StatusCode = HttpStatusCode.Created });
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new JsonResult(new MessageResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                    return new JsonResult(new ApiResponse<object> { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
                 }
             }
         }
@@ -123,11 +125,11 @@ namespace Backend.Controllers
 
                 var token = GenerateJwtToken(userModel.Id.ToString());
 
-                return new JsonResult(new MessageResponse { Token = token, Message = "Login successful.", StatusCode = HttpStatusCode.OK });
+                return new JsonResult(new ApiResponse<TokenResponse> { Data = new TokenResponse { Token = token }, Message = "Login successfully.", StatusCode = HttpStatusCode.OK });
             }
             catch (Exception ex)
             {
-                return new JsonResult(new MessageResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                return new JsonResult(new ApiResponse<object> { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
             }
         }
 

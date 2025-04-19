@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace api.ViewModels
+namespace Backend.ViewModels
 {
     public enum HttpStatusCode
     {
@@ -16,12 +16,18 @@ namespace api.ViewModels
         Conflict = 409,
         InternalServerError = 500
     }
-    public class MessageResponse
+
+    public class ApiResponse<T>
     {
-        public string? Token { get; set; }
-        public int? Id { get; set; }
+        public T? Data { get; set; }
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }
+
+    public class TokenResponse
+    {
+        public string Token { get; set; } = string.Empty;
+    }
+
 
 }

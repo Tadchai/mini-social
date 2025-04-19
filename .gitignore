@@ -89,3 +89,6 @@ Backend/Models/MiniSocialContext.cs
 
 #ER
 ER-mini-social.drawio
+
+#image
+Backend/wwwroot
