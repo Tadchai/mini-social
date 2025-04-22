@@ -17,9 +17,23 @@ namespace Backend.ViewModels
         InternalServerError = 500
     }
 
-    public class ApiResponse<T>
+    public class ApiWithDataResponse<T>
     {
         public T? Data { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public HttpStatusCode StatusCode { get; set; }
+    }
+    public class ApiResponse
+    {
+        public string Message { get; set; } = string.Empty;
+        public HttpStatusCode StatusCode { get; set; }
+    }
+    public class ApiWithPagedResponse<T>
+    {
+        public List<T> Data { get; set; }
+        public DateTime LastCreatedAt { get; set; }
+        public int LastId { get; set; }
+        public bool HasNextPage { get; set; }
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }

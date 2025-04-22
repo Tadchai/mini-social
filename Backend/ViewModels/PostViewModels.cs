@@ -16,11 +16,20 @@ namespace Backend.ViewModels
         public int Id { get; set; }
         public string Content { get; set; }
         public List<T> ImageUrl { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 
     public class ImageResponse
     {
         public int Id { get; set;}
         public string ImageUrl { get; set; }
+    }
+
+    public class GetByIdRequest
+    {
+        public int UserId { get; set; }
+        public DateTime? LastCreatedAt { get; set; }
+        public int? LastId { get; set; }
+        public int PageSize { get; set; }
     }
 }

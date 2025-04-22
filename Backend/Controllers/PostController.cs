@@ -26,32 +26,47 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetById(int userId)
+        public async Task<IActionResult> GetById(int userId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
         {
             try
             {
-                var queyPost = from u in _context.Users
-                               join p in _context.Posts on u.Id equals p.UserId
-                               where p.UserId == userId
-                               select new 
-                               {
-                                   Id = p.Id,
-                                   Content = p.Content,
-                               };
+                var queryPost = from p in _context.Posts
+                                where p.UserId == userId
+                                select p;
 
-                var post = await queyPost.ToListAsync();
-                var postDic = post.ToDictionary(x => x.Id, x => new List<ImageResponse>());
+                if (lastCreatedAt.HasValue && lastId.HasValue)
+                {
+                    queryPost = from p in _context.Posts
+                                where p.UserId == userId &&
+                                p.CreateAt < lastCreatedAt.Value ||
+                                (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value)
+                                select p;
+                }
 
-                var queyPostImages = from p in _context.Posts
-                                     join pi in _context.PostImages on p.Id equals pi.PostId
-                                     where post.Select(x => x.Id).Contains(pi.Id)
-                                     select new 
-                                     {
-                                         PostId = pi.PostId,
-                                         Id = pi.Id,
-                                         ImageUrl = pi.ImageUrl
-                                     };
-                foreach (var image in queyPostImages)
+                var posts = await (from p in queryPost
+                                   orderby p.CreateAt descending, p.Id descending
+                                   select new
+                                   {
+                                       Id = p.Id,
+                                       Content = p.Content,
+                                       CreatedAt = p.CreateAt
+                                   })
+                                   .Take(pageSize +1)
+                                   .ToListAsync();
+
+                var postImages = await (from pi in _context.PostImages
+                                        where posts.Select(x => x.Id).Contains(pi.PostId)
+                                        select new
+                                        {
+                                            PostId = pi.PostId,
+                                            Id = pi.Id,
+                                            ImageUrl = pi.ImageUrl
+                                        })
+                                        .ToListAsync();
+
+                var postDic = posts.ToDictionary(x => x.Id, x => new List<ImageResponse>());
+
+                foreach (var image in postImages)
                 {
                     postDic[image.PostId].Add(new ImageResponse
                     {
@@ -59,28 +74,45 @@ namespace Backend.Controllers
                         ImageUrl = image.ImageUrl
                     });
                 }
-                var data = post.Select(p => new GetByIdResponse<ImageResponse>
-                {
-                    Id = p.Id,
-                    Content = p.Content,
-                    ImageUrl = postDic[p.Id].Select(p => new ImageResponse
-                    {
-                        Id = p.Id,
-                        ImageUrl = p.ImageUrl
-                    }).ToList()
-                }).ToList();
 
-                return new JsonResult(new ApiResponse<List<GetByIdResponse<ImageResponse>>> { Data = data, Message = "Posts retrieved successfully.", StatusCode = HttpStatusCode.OK });
+                var data = (from p in posts
+                            select new GetByIdResponse<ImageResponse>
+                            {
+                                Id = p.Id,
+                                Content = p.Content,
+                                ImageUrl = postDic[p.Id],
+                                CreatedAt = p.CreatedAt
+                            })
+                            .Take(pageSize)
+                            .ToList();
+
+                var lastPost = data.LastOrDefault();
+                bool hasNextPage = posts.Count() > pageSize;
+
+                return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
+                {
+                    Data = data,
+                    LastCreatedAt = lastPost.CreatedAt,
+                    LastId = lastPost.Id,
+                    HasNextPage = hasNextPage,
+                    Message = "Posts retrieved successfully.",
+                    StatusCode = HttpStatusCode.OK
+                });
             }
             catch (Exception ex)
             {
-
-                return new JsonResult(new ApiResponse<object> { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                return new JsonResult(new ApiResponse
+                {
+                    Message = $"An error occurred: {ex.Message}",
+                    StatusCode = HttpStatusCode.InternalServerError
+                });
             }
         }
 
+
+
         [HttpPost]
-        public async Task<IActionResult> Create(CreatePostRequest request)
+        public async Task<IActionResult> Create([FromForm] CreatePostRequest request)
         {
             var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
 
@@ -140,12 +172,12 @@ namespace Backend.Controllers
 
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
-                    return new JsonResult(new ApiResponse<object> { Message = "Post Created successfully.", StatusCode = HttpStatusCode.Created });
+                    return new JsonResult(new ApiResponse { Message = "Post Created successfully.", StatusCode = HttpStatusCode.Created });
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new JsonResult(new ApiResponse<object> { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                    return new JsonResult(new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
                 }
             }
         }

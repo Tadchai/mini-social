@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { ApiLoginResponse } from '../types/Response'
+import type { ApiLoginResponse, ApiResponse } from '../types/Response'
 import { useRouter } from 'vue-router';
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -31,10 +31,10 @@ async function login(){
         password: password.value
       })
     })
-    const result: ApiLoginResponse = await response.json()
-    if (result.statusCode === 200) {
+    const result: ApiResponse<ApiLoginResponse> = await response.json()
+    if (result.statusCode === 200 && result.data?.token) {
       alert(result.message)
-      localStorage.setItem('token', result.token)
+      localStorage.setItem('token', result.data.token)
       router.push('/')
     } else {
       alert(result.message)
