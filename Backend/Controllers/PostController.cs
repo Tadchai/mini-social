@@ -36,11 +36,7 @@ namespace Backend.Controllers
 
                 if (lastCreatedAt.HasValue && lastId.HasValue)
                 {
-                    queryPost = from p in _context.Posts
-                                where p.UserId == userId &&
-                                p.CreateAt < lastCreatedAt.Value ||
-                                (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value)
-                                select p;
+                    queryPost = queryPost.Where(p => p.CreateAt < lastCreatedAt.Value || (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value));
                 }
 
                 var posts = await (from p in queryPost
@@ -51,7 +47,7 @@ namespace Backend.Controllers
                                        Content = p.Content,
                                        CreatedAt = p.CreateAt
                                    })
-                                   .Take(pageSize +1)
+                                   .Take(pageSize + 1)
                                    .ToListAsync();
 
                 var postImages = await (from pi in _context.PostImages
@@ -109,7 +105,84 @@ namespace Backend.Controllers
             }
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetByFollow(int userId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
+        {
+            try
+            {
+                var queryPost = from p in _context.Posts
+                                where _context.Follows
+                                    .Where(f => f.FollowerId == userId)
+                                    .Select(f => f.FollowingId)
+                                    .Contains(p.UserId)
+                                select p;
 
+                if (lastCreatedAt.HasValue && lastId.HasValue)
+                {
+                    queryPost = queryPost.Where(p => p.CreateAt < lastCreatedAt.Value || (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value));
+                }
+
+                var posts = await (from p in queryPost
+                                   orderby p.CreateAt descending, p.Id descending
+                                   select new
+                                   {
+                                       Id = p.Id,
+                                       Content = p.Content,
+                                       CreatedAt = p.CreateAt
+                                   })
+                                   .Take(pageSize + 1)
+                                   .ToListAsync();
+
+                var postImages = await (from pi in _context.PostImages
+                                        where posts.Select(x => x.Id).Contains(pi.PostId)
+                                        select new
+                                        {
+                                            PostId = pi.PostId,
+                                            Id = pi.Id,
+                                            ImageUrl = pi.ImageUrl
+                                        })
+                                        .ToListAsync();
+
+                var postDic = posts.ToDictionary(x => x.Id, x => new List<ImageResponse>());
+
+                foreach (var image in postImages)
+                {
+                    postDic[image.PostId].Add(new ImageResponse
+                    {
+                        Id = image.Id,
+                        ImageUrl = image.ImageUrl
+                    });
+                }
+
+                var data = (from p in posts
+                            select new GetByIdResponse<ImageResponse>
+                            {
+                                Id = p.Id,
+                                Content = p.Content,
+                                ImageUrl = postDic[p.Id],
+                                CreatedAt = p.CreatedAt
+                            })
+                            .Take(pageSize)
+                            .ToList();
+
+                var lastPost = data.LastOrDefault();
+                bool hasNextPage = posts.Count > pageSize;
+
+                return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
+                {
+                    Data = data,
+                    LastCreatedAt = lastPost.CreatedAt,
+                    LastId = lastPost.Id,
+                    HasNextPage = hasNextPage,
+                    Message = "Posts retrieved successfully.",
+                    StatusCode = HttpStatusCode.OK
+                });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+            }
+        }
 
         [HttpPost]
         public async Task<IActionResult> Create([FromForm] CreatePostRequest request)
