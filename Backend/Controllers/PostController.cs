@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend.Models;
@@ -246,6 +247,58 @@ namespace Backend.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
                     return new JsonResult(new ApiResponse { Message = "Post Created successfully.", StatusCode = HttpStatusCode.Created });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new JsonResult(new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Update([FromBody]UpdatePostRequest request)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var postModel = await _context.Posts.SingleAsync(p => p.Id == request.PostId);
+                    postModel.Content = request.Content;
+                    postModel.UpdateAt = DateTime.Now;
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return new JsonResult(new ApiResponse { Message = "Post Update successfully.", StatusCode = HttpStatusCode.Created });
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new JsonResult(new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<ActionResult> Delete([FromBody]DeletePostRequest request)
+        {
+            using (var transaction = await _context.Database.BeginTransactionAsync())
+            {
+                try
+                {
+                    var postImageModel = await _context.PostImages.Where(pi => pi.PostId == request.PostId).ToListAsync();
+                    foreach(var image in postImageModel)
+                    {
+                        _context.PostImages.Remove(image);
+                    }
+                    await _context.SaveChangesAsync();
+                    
+                    var postModel = await _context.Posts.SingleAsync(p => p.Id == request.PostId);
+                    _context.Posts.Remove(postModel);
+
+                    await _context.SaveChangesAsync();
+                    await transaction.CommitAsync();
+                    return new JsonResult(new ApiResponse { Message = "Post Delete successfully.", StatusCode = HttpStatusCode.Created });
                 }
                 catch (Exception ex)
                 {

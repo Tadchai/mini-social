@@ -11,6 +11,17 @@ namespace Backend.ViewModels
         public string? Content { get; set; }
     }
 
+    public class UpdatePostRequest
+    {
+        public int PostId { get; set; }
+        public string Content { get; set; }
+    }
+
+    public class DeletePostRequest
+    {
+        public int PostId { get; set; }
+    }
+
     public class GetByIdResponse<T>
     {
         public int Id { get; set; }
