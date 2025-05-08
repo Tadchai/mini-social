@@ -1,4 +1,5 @@
 using System.Text;
+using Backend.Hubs;
 using Backend.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -43,6 +44,7 @@ builder.Services.AddCors(options =>
               .AllowAnyMethod();
     });
 });
+builder.Services.AddSignalR();
 
 var app = builder.Build();
 
