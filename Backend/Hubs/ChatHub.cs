@@ -1,4 +1,5 @@
 using Backend.Models;
+using Backend.ViewModels;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,28 +13,34 @@ namespace Backend.Hubs
             _context = context;
         }
 
-        public async Task JoinGroup(string groupName)
+        public async Task JoinConversation(int conversationId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
+            await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
         }
 
-        public async Task SendMessage(int groupId, int userId, string text)
+        public async Task SendMessage(int conversationId, int senderId, string content, int type = (int)ChatMessageType.text)
         {
-            var group = await _context.Conversations.SingleAsync(c => c.Id == groupId);
-            var user = await _context.Users.SingleAsync(u => u.Id == userId);
-            if (group == null || user == null) return;
-
-            var messageModel = new Message
+            var message = new Message
             {
-                ConversationId = groupId,
-                SenderId = userId,
-                Content = text,
-                CreatedAt = DateTime.Now,
+                ConversationId = conversationId,
+                SenderId = senderId,
+                Content = content,
+                Type = type,
+                CreatedAt = DateTime.UtcNow
             };
-            _context.Messages.Add(messageModel);
+
+            _context.Messages.Add(message);
             await _context.SaveChangesAsync();
 
-            await Clients.Group(group.Name).SendAsync("ReceiveMessage", user.Username, text);
+            await Clients.Group($"conversation_{conversationId}").SendAsync("ReceiveMessage", new
+            {
+                message.Id,
+                message.SenderId,
+                message.Content,
+                message.Type,
+                message.CreatedAt,
+                message.ConversationId
+            });
         }
     }
 }

@@ -5,6 +5,11 @@ using System.Threading.Tasks;
 
 namespace Backend.ViewModels
 {
+    enum ChatMessageType{
+        text,
+        image,
+        file
+    }
     public class MessageResponse
     {
         public int Id { get; set; }
