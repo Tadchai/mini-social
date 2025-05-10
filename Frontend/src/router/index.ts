@@ -6,6 +6,7 @@ import Login from '../views/Login.vue'
 import Home from '../views/Home.vue'
 import About from '../views/About.vue'
 import ChatRoom from '../views/ChatRoom.vue'
+import Follow from '../views/Follow.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,16 +18,15 @@ const router = createRouter({
       children: [
         { path: '', component: Home },
         { path: 'about', component: About },
-        { path: 'chat', component: ChatRoom }
-      ]
+        { path: 'chat', component: ChatRoom },
+        { path: 'follow', component: Follow },
+      ],
     },
     {
       path: '/login',
       component: AuthLayout,
-      children: [
-        { path: '', component: Login }
-      ]
-    }
+      children: [{ path: '', component: Login }],
+    },
   ],
 })
 
