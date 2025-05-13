@@ -1,10 +1,13 @@
 using Backend.Models;
 using Backend.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace Backend.Hubs
 {
+    [Authorize]
     public class ChatHub : Hub
     {
         private readonly MiniSocialContext _context;
@@ -18,8 +21,11 @@ namespace Backend.Hubs
             await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
         }
 
-        public async Task SendMessage(int conversationId, int senderId, string content, int type = (int)ChatMessageType.text)
+        public async Task SendMessage(int conversationId, string content, int type = (int)ChatMessageType.text)
         {
+            
+            var senderId = int.Parse(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
+
             var message = new Message
             {
                 ConversationId = conversationId,

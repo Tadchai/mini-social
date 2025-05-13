@@ -23,6 +23,11 @@ namespace Backend.ViewModels
     {
         public string Name { get; set; }
     }
+
+    public class CreatePrivateGroupRequest
+    {
+        public int targetUserId { get; set; }
+    }
     public class UpdateGroupRequest
     {
         public int GroupId { get; set; }

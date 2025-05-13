@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Backend.Models;
 using Backend.ViewModels;
@@ -105,6 +106,66 @@ namespace Backend.Controllers
                 }
             }
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreatePrivate([FromBody] CreatePrivateGroupRequest request)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            try
+            {
+                var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+                var queryConversation = _context.ConversationUsers
+                                        .Where(cu => cu.UserId == currentUserId || cu.UserId == request.targetUserId)
+                                        .GroupBy(cu => cu.ConversationId)
+                                        .Where(g =>
+                                            g.Count() == 2 &&
+                                            g.Any(cu => cu.UserId == currentUserId) &&
+                                            g.Any(cu => cu.UserId == request.targetUserId)
+                                        )
+                                        .Select(g => g.Key);
+                var conversationId = await queryConversation.SingleOrDefaultAsync();
+                if (conversationId != 0)
+                {
+                    return new JsonResult(new ApiWithIdResponse { Id = conversationId, Message = "Chat already exists.", StatusCode = HttpStatusCode.OK });
+                }
+
+                var targetUsername = await _context.Users
+                                    .Where(u => u.Id == request.targetUserId)
+                                    .Select(u => u.Username)
+                                    .SingleAsync();
+
+                var conversationModel = new Conversation
+                {
+                    IsGroup = false,
+                    Name = targetUsername,
+                    CreatedAt = DateTime.Now,
+                };
+
+                await _context.Conversations.AddAsync(conversationModel);
+                await _context.SaveChangesAsync();
+
+                var conversationUsers = new List<ConversationUser>
+                {
+                    new ConversationUser { ConversationId = conversationModel.Id, UserId = currentUserId, JoinedAt = DateTime.Now },
+                    new ConversationUser { ConversationId = conversationModel.Id, UserId = request.targetUserId, JoinedAt = DateTime.Now }
+                };
+
+                await _context.ConversationUsers.AddRangeAsync(conversationUsers);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return new JsonResult(new ApiWithIdResponse { Id = conversationModel.Id, Message = "PrivateGroup Created successfully.", StatusCode = HttpStatusCode.Created });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new JsonResult(new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError });
+            }
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> UpdateGroup([FromBody] UpdateGroupRequest request)

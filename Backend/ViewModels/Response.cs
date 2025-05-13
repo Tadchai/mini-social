@@ -28,6 +28,12 @@ namespace Backend.ViewModels
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }
+    public class ApiWithIdResponse
+    {
+        public int Id { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public HttpStatusCode StatusCode { get; set; }
+    }
     public class ApiWithPagedResponse<T>
     {
         public List<T> Data { get; set; }
