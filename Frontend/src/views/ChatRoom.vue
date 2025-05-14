@@ -1,4 +1,3 @@
-<!-- views/ChatRoom.vue -->
 <template>
   <div class="chat-container">
     <div class="messages">
@@ -20,37 +19,46 @@
 
 <script lang="ts" setup>
 import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { jwtDecode } from 'jwt-decode'
 import {
   startSignalRConnection,
   joinConversation,
   sendMessage,
   onReceiveMessage,
 } from '../services/signalr'
+import type { TokenPayload } from '../types/Chat'
 
-const props = defineProps<{
-  conversationId: number
-  currentUserId: number
-}>()
+const route = useRoute()
+const conversationId = parseInt(route.params.id as string)
+
+const token = localStorage.getItem('token')
+const currentUserId = ref(0)
+
+if (token) {
+  const decoded = jwtDecode<TokenPayload>(token)
+  currentUserId.value = parseInt(decoded.nameid)
+}
 
 const messages = ref<any[]>([])
 const newMessage = ref('')
 
 async function send() {
   if (newMessage.value.trim() === '') return
-  await sendMessage(props.conversationId, props.currentUserId, newMessage.value)
+  await sendMessage(conversationId, newMessage.value)
   newMessage.value = ''
 }
 
-function formatTime(timestamp: string){
+function formatTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString()
 }
 
 onMounted(async () => {
   await startSignalRConnection()
-  await joinConversation(props.conversationId)
+  await joinConversation(conversationId)
 
   onReceiveMessage((msg) => {
-    if (msg.conversationId === props.conversationId) {
+    if (msg.conversationId === conversationId) {
       messages.value.push(msg)
     }
   })

@@ -5,7 +5,11 @@ let connection: signalR.HubConnection
 
 export async function startSignalRConnection() {
   connection = new signalR.HubConnectionBuilder()
-    .withUrl(`${API_URL}/chathub`)
+    .withUrl(`${API_URL}/chathub`, {
+      accessTokenFactory: () => localStorage.getItem('token') || '',
+      withCredentials: true,
+      transport: signalR.HttpTransportType.WebSockets,
+    })
     .withAutomaticReconnect()
     .build()
 
@@ -14,16 +18,12 @@ export async function startSignalRConnection() {
 }
 
 export async function joinConversation(conversationId: number) {
+  console.log("Joining conversation:", conversationId);
   await connection.invoke('JoinConversation', conversationId)
 }
 
-export async function sendMessage(
-  conversationId: number,
-  senderId: number,
-  content: string,
-  type: number = 0,
-) {
-  await connection.invoke('SendMessage', conversationId, senderId, content, type)
+export async function sendMessage(conversationId: number, content: string) {
+  await connection.invoke('SendMessage', conversationId, content)
 }
 
 export async function onReceiveMessage(callback: (message: any) => void) {

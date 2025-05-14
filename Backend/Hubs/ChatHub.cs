@@ -18,12 +18,13 @@ namespace Backend.Hubs
 
         public async Task JoinConversation(int conversationId)
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"conversation_{conversationId}");
+            Console.WriteLine($"Joining conversation {conversationId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, conversationId.ToString());
         }
 
-        public async Task SendMessage(int conversationId, string content, int type = (int)ChatMessageType.text)
+        public async Task SendMessage(int conversationId, string content)
         {
-            
+
             var senderId = int.Parse(Context.User.FindFirstValue(ClaimTypes.NameIdentifier));
 
             var message = new Message
@@ -31,7 +32,7 @@ namespace Backend.Hubs
                 ConversationId = conversationId,
                 SenderId = senderId,
                 Content = content,
-                Type = type,
+                Type = (int)ChatMessageType.text,
                 CreatedAt = DateTime.UtcNow
             };
 
