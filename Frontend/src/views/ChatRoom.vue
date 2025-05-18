@@ -30,6 +30,7 @@ import {
 import type { TokenPayload } from '../types/Chat'
 
 const route = useRoute()
+const API_URL = import.meta.env.VITE_API_URL
 const conversationId = parseInt(route.params.id as string)
 
 const token = localStorage.getItem('token')
@@ -53,9 +54,25 @@ function formatTime(timestamp: string) {
   return new Date(timestamp).toLocaleTimeString()
 }
 
+async function loadMessages() {
+  const response = await fetch(`${API_URL}/Chat/GetMessages?groupId=${conversationId}&pageSize=20`, {
+    headers: {
+      Authorization: `Bearer ${token}`
+    }
+  })
+
+  if (response.ok) {
+    const result = await response.json()
+    messages.value = result.data
+  } else {
+    console.error('Failed to load messages')
+  }
+}
+
 onMounted(async () => {
   await startSignalRConnection()
   await joinConversation(conversationId)
+  await loadMessages()
 
   onReceiveMessage((msg) => {
     if (msg.conversationId === conversationId) {
@@ -89,6 +106,7 @@ onMounted(async () => {
 }
 .received {
   background-color: #ececec;
+  color: black;
   align-self: flex-start;
 }
 .input-area {
