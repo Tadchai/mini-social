@@ -42,10 +42,11 @@ namespace Backend.Controllers
             }
         }
 
-        static bool VerifyPassword(string enteredPassword, string storedSalt, string storedHashedPassword)
+        static int VerifyPassword(string enteredPassword, string storedSalt, string storedHashedPassword)
         {
-            string hashedPassword = HashPassword(enteredPassword, storedSalt);
-            return hashedPassword == storedHashedPassword;
+            string hashedEnteredPassword = HashPassword(enteredPassword, storedSalt);
+
+            return hashedEnteredPassword == storedHashedPassword ? (int)PasswordVerificationResult.Success : (int)PasswordVerificationResult.Failed;
         }
 
         private string GenerateJwtToken(string userId)
@@ -100,7 +101,7 @@ namespace Backend.Controllers
                     await _context.SaveChangesAsync();
                     await transaction.CommitAsync();
 
-                    return new JsonResult(new ApiResponse{ Message = "User Created successfully.", StatusCode = HttpStatusCode.Created });
+                    return new JsonResult(new ApiResponse { Message = "User Created successfully.", StatusCode = HttpStatusCode.Created });
                 }
                 catch (Exception ex)
                 {
@@ -117,15 +118,15 @@ namespace Backend.Controllers
             {
                 var userModel = await _context.Users.SingleOrDefaultAsync(u => u.Username == request.Username);
                 if (userModel == null)
-                    return BadRequest(new { Message = "Invalid username or password." });
+                    return new JsonResult(new { Message = "Invalid username or password." });
 
                 var verifyResult = VerifyPassword(request.Password, userModel.Salt, userModel.Password);
-                if (!verifyResult)
-                    return BadRequest(new { Message = "Invalid username or password." });
+                if (verifyResult == (int)PasswordVerificationResult.Failed)
+                    return new JsonResult(new { Message = "Invalid username or password." });
 
                 var token = GenerateJwtToken(userModel.Id.ToString());
 
-                return new JsonResult(new ApiWithDataResponse<TokenResponse> { Data = new TokenResponse { Token = token }, Message = "Login successfully.", StatusCode = HttpStatusCode.OK });
+                return new JsonResult(new ApiWithTokenResponse { Token = token, Message = "Login successfully.", StatusCode = HttpStatusCode.OK });
             }
             catch (Exception ex)
             {

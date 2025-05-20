@@ -34,6 +34,12 @@ namespace Backend.ViewModels
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }
+    public class ApiWithTokenResponse
+    {
+        public string Token { get; set; }
+        public string Message { get; set; } = string.Empty;
+        public HttpStatusCode StatusCode { get; set; }
+    }
     public class ApiWithPagedResponse<T>
     {
         public List<T> Data { get; set; }

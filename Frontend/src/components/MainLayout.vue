@@ -1,8 +1,8 @@
 <template>
   <div class="layout">
-    <Sidebar />
+    <Sidebar class="sidebar"/>
     <div class="main-content">
-      <Navbar />
+      <Navbar class="navbar"/>
       <div class="page-content">
         <router-view />
       </div>
@@ -18,15 +18,40 @@ import Navbar from './Navbar.vue'
 <style scoped>
 .layout {
   display: flex;
+  flex-direction: row;
+}
+
+.sidebar {
+  width: 200px;
+  min-height: 100vh;
+  position: fixed;
+  top: 60px;
+  left: 0;
+}
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .main-content {
+  margin-left: 250px;
+  margin-top: 60px;
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  padding: 20px;
 }
 
-.page-content {
-  padding: 20px;
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
+  .main-content {
+    margin-left: 0;
+  }
 }
 </style>

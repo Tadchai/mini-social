@@ -6,6 +6,8 @@ export interface ApiResponse<T> {
 
 export interface ApiLoginResponse {
   token: string;
+  statusCode: number
+  message: string
 }
 
 export interface ApiWithIdResponse<T> extends ApiResponse<T> {

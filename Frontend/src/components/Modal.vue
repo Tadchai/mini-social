@@ -40,6 +40,8 @@ defineExpose({ openModal, closeModal })
   background: white;
   padding: 20px;
   border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
 }
 .modal-footer {
   margin-top: 10px;
