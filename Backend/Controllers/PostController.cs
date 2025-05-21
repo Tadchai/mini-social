@@ -27,10 +27,12 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetById(int userId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
+        public async Task<IActionResult> GetById(DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
         {
             try
             {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
                 var queryPost = from p in _context.Posts
                                 where p.UserId == userId
                                 select p;
@@ -62,7 +64,6 @@ namespace Backend.Controllers
                                         .ToListAsync();
 
                 var postDic = posts.ToDictionary(x => x.Id, x => new List<ImageResponse>());
-
                 foreach (var image in postImages)
                 {
                     postDic[image.PostId].Add(new ImageResponse
@@ -83,14 +84,12 @@ namespace Backend.Controllers
                             .Take(pageSize)
                             .ToList();
 
-                var lastPost = data.LastOrDefault();
                 bool hasNextPage = posts.Count() > pageSize;
 
                 return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
                 {
                     Data = data,
-                    LastCreatedAt = lastPost.CreatedAt,
-                    LastId = lastPost.Id,
+                    LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
                     HasNextPage = hasNextPage,
                     Message = "Posts retrieved successfully.",
                     StatusCode = HttpStatusCode.OK
@@ -107,10 +106,12 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetByFollow(int userId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
+        public async Task<IActionResult> GetByFollow(DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
         {
             try
             {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
                 var queryPost = from p in _context.Posts
                                 where _context.Follows
                                     .Where(f => f.FollowerId == userId)
@@ -145,7 +146,6 @@ namespace Backend.Controllers
                                         .ToListAsync();
 
                 var postDic = posts.ToDictionary(x => x.Id, x => new List<ImageResponse>());
-
                 foreach (var image in postImages)
                 {
                     postDic[image.PostId].Add(new ImageResponse
@@ -166,14 +166,12 @@ namespace Backend.Controllers
                             .Take(pageSize)
                             .ToList();
 
-                var lastPost = data.LastOrDefault();
                 bool hasNextPage = posts.Count > pageSize;
 
                 return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
                 {
                     Data = data,
-                    LastCreatedAt = lastPost.CreatedAt,
-                    LastId = lastPost.Id,
+                    LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
                     HasNextPage = hasNextPage,
                     Message = "Posts retrieved successfully.",
                     StatusCode = HttpStatusCode.OK
@@ -257,7 +255,7 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Update([FromBody]UpdatePostRequest request)
+        public async Task<ActionResult> Update([FromBody] UpdatePostRequest request)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
@@ -280,19 +278,19 @@ namespace Backend.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult> Delete([FromBody]DeletePostRequest request)
+        public async Task<ActionResult> Delete([FromBody] DeletePostRequest request)
         {
             using (var transaction = await _context.Database.BeginTransactionAsync())
             {
                 try
                 {
                     var postImageModel = await _context.PostImages.Where(pi => pi.PostId == request.PostId).ToListAsync();
-                    foreach(var image in postImageModel)
+                    foreach (var image in postImageModel)
                     {
                         _context.PostImages.Remove(image);
                     }
                     await _context.SaveChangesAsync();
-                    
+
                     var postModel = await _context.Posts.SingleAsync(p => p.Id == request.PostId);
                     _context.Posts.Remove(postModel);
 

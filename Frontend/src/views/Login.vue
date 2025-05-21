@@ -39,7 +39,7 @@
 import { ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
 import Modal from '../components/Modal.vue'
-import { loginUser, registerUser } from '../services/Auth'
+import { loginUser, registerUser } from '../services/authService'
 
 const router = useRouter()
 const modal = useTemplateRef<InstanceType<typeof Modal>>('modal')

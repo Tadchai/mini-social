@@ -62,13 +62,16 @@ namespace Backend.Controllers
                             .Take(pageSize + 1)
                             .ToList();
 
-                var lastPost = data.LastOrDefault();
+                var lastMessage = data.LastOrDefault();
                 bool hasNextPage = messages.Count() > pageSize;
                 return new JsonResult(new ApiWithPagedResponse<MessageResponse>
                 {
                     Data = data,
-                    LastCreatedAt = lastPost.CreatedAt,
-                    LastId = lastPost.Id,
+                    LastCursor = 
+                    {
+                        CreatedAt = lastMessage.CreatedAt,
+                        Id = lastMessage.Id
+                    },
                     HasNextPage = hasNextPage,
                     Message = "Message retrieved successfully.",
                     StatusCode = HttpStatusCode.OK

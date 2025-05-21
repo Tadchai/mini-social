@@ -17,6 +17,12 @@ namespace Backend.ViewModels
         InternalServerError = 500
     }
 
+    public class LastCursor
+    {
+        public int Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
+
     public class ApiWithDataResponse<T>
     {
         public T? Data { get; set; }
@@ -43,8 +49,8 @@ namespace Backend.ViewModels
     public class ApiWithPagedResponse<T>
     {
         public List<T> Data { get; set; }
-        public DateTime LastCreatedAt { get; set; }
-        public int LastId { get; set; }
+
+        public LastCursor? LastCursor { get; set; }
         public bool HasNextPage { get; set; }
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }

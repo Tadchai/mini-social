@@ -26,7 +26,7 @@ import {
   joinConversation,
   sendMessage,
   onReceiveMessage,
-} from '../services/signalr'
+} from '../services/signalrService'
 import type { TokenPayload } from '../types/Chat'
 
 const route = useRoute()

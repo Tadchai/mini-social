@@ -1,15 +1,26 @@
-export interface ApiResponse<T> {
-  data? :T
+export interface LastCursor{
+  createdAt: string
+  id: number
+}
+
+export interface ApiResponse {
   statusCode: number
   message: string
 }
 
-export interface ApiLoginResponse {
+export interface ApiWithDataResponse<T> extends ApiResponse{
+  data :T
+}
+
+export interface ApiWithTokenResponse extends ApiResponse {
   token: string;
-  statusCode: number
-  message: string
 }
 
-export interface ApiWithIdResponse<T> extends ApiResponse<T> {
+export interface ApiWithIdResponse extends ApiResponse {
   id: number;
+}
+
+export interface ApiWithPagedResponse<T> extends ApiWithDataResponse<T> {
+  lastCursor: LastCursor;
+  hasNextPage: boolean;
 }
