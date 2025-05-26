@@ -34,3 +34,17 @@ export async function fetchFollowPosts( pageSize: number, lastCursor?: LastCurso
   })
   return await response.json()
 }
+
+export async function fetchMyPosts( pageSize: number, lastCursor?: LastCursor): Promise<ApiWithPagedResponse<Post[]>> {
+  const token = localStorage.getItem('token')
+  let url = `${API_URL}/Post/GetById?pageSize=${pageSize}`
+
+  if (lastCursor) {
+    url += `&lastCreatedAt=${encodeURIComponent(lastCursor.createdAt)}&lastId=${lastCursor.id}`
+  }
+
+  const response = await fetch(url, {
+    headers: { Authorization: `Bearer ${token}` }
+  })
+  return await response.json()
+}

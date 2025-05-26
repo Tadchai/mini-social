@@ -1,12 +1,25 @@
 <template>
   <aside class="sidebar">
     <ul>
-      <li><router-link to="/">Home</router-link></li>
-      <li><router-link to="/about">About</router-link></li>
-      <li><router-link to="/follow">Follow</router-link></li>
+      <router-link to="/"><li>Home</li></router-link>
+      <router-link to="/about"><li>About</li></router-link>
+      <router-link to="/follow"><li>Follow</li></router-link>
+      <router-link to="/myposts"><li>MyPosts</li></router-link>
+      <li @click="logout">Logout</li>
     </ul>
   </aside>
 </template>
+
+<script setup>
+import { useRouter } from 'vue-router';
+
+const router = useRouter();
+
+function logout(){
+  localStorage.removeItem('token');
+  router.push('/login')
+}
+</script>
 
 <style scoped>
 .sidebar {
@@ -14,7 +27,6 @@
   background-color: #34495e;
   color: white;
   height: 100vh;
-  padding: 20px;
 }
 
 .sidebar ul {
@@ -23,9 +35,13 @@
 }
 
 .sidebar li {
-  margin: 10px 0;
+  text-align: center;
+  padding: 10px;
 }
 
+.sidebar li:hover {
+  background-color: #415e78;
+}
 a {
   color: white;
   text-decoration: none;

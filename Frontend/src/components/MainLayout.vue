@@ -40,7 +40,7 @@ import Navbar from './Navbar.vue'
 }
 
 .main-content {
-  margin-left: 250px;
+  margin-left: 200px;
   margin-top: 60px;
   flex: 1;
   padding: 20px;
