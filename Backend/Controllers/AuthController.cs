@@ -80,7 +80,7 @@ namespace Backend.Controllers
             if (userModel)
                 return new JsonResult(new ApiResponse { Message = "Name is already in use.", StatusCode = HttpStatusCode.Conflict });
 
-            if (request.Password != request.confirmPassword)
+            if (request.Password != request.ConfirmPassword)
                 return new JsonResult(new ApiResponse { Message = "Password do not match.", StatusCode = HttpStatusCode.Conflict });
 
             using (var transaction = await _context.Database.BeginTransactionAsync())

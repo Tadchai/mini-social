@@ -74,7 +74,7 @@ namespace Backend.Controllers
                 }
 
                 var data = (from p in posts
-                            select new GetByIdResponse<ImageResponse>
+                            select new PostResponse
                             {
                                 Id = p.Id,
                                 Content = p.Content,
@@ -86,7 +86,7 @@ namespace Backend.Controllers
 
                 bool hasNextPage = posts.Count() > pageSize;
 
-                return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
+                return new JsonResult(new ApiWithPagedResponse<PostResponse>
                 {
                     Data = data,
                     LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
@@ -156,7 +156,7 @@ namespace Backend.Controllers
                 }
 
                 var data = (from p in posts
-                            select new GetByIdResponse<ImageResponse>
+                            select new PostResponse
                             {
                                 Id = p.Id,
                                 Content = p.Content,
@@ -168,7 +168,7 @@ namespace Backend.Controllers
 
                 bool hasNextPage = posts.Count > pageSize;
 
-                return new JsonResult(new ApiWithPagedResponse<GetByIdResponse<ImageResponse>>
+                return new JsonResult(new ApiWithPagedResponse<PostResponse>
                 {
                     Data = data,
                     LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,

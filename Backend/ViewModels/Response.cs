@@ -16,50 +16,33 @@ namespace Backend.ViewModels
         Conflict = 409,
         InternalServerError = 500
     }
-
-    public class LastCursor
-    {
-        public int Id { get; set; }
-        public DateTime CreatedAt { get; set; }
-    }
-
-    public class ApiWithDataResponse<T>
-    {
-        public T? Data { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public HttpStatusCode StatusCode { get; set; }
-    }
     public class ApiResponse
     {
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }
-    public class ApiWithIdResponse
+    public class ApiWithDataResponse<T> : ApiResponse
+    {
+        public T? Data { get; set; }
+    }
+    public class ApiWithIdResponse : ApiResponse
     {
         public int Id { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public HttpStatusCode StatusCode { get; set; }
     }
-    public class ApiWithTokenResponse
-    {
-        public string Token { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public HttpStatusCode StatusCode { get; set; }
-    }
-    public class ApiWithPagedResponse<T>
-    {
-        public List<T> Data { get; set; }
-
-        public LastCursor? LastCursor { get; set; }
-        public bool HasNextPage { get; set; }
-        public string Message { get; set; } = string.Empty;
-        public HttpStatusCode StatusCode { get; set; }
-    }
-
-    public class TokenResponse
+    public class ApiWithTokenResponse : ApiResponse
     {
         public string Token { get; set; } = string.Empty;
     }
+    public class ApiWithPagedResponse<T> : ApiResponse
+    {
+        public List<T>? Data { get; set; }
 
-
+        public LastCursor? LastCursor { get; set; }
+        public bool HasNextPage { get; set; }
+    }
+    public class LastCursor
+    {
+        public int Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+    }
 }

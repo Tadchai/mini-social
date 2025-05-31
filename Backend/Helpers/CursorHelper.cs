@@ -6,33 +6,43 @@ using System.Threading.Tasks;
 
 namespace Backend.Helpers
 {
-   public static class CursorHelper
-{
-    public static string EncodeCursor(int lastPostId)
+    public static class CursorHelper
     {
-        var raw = $"POST|{lastPostId}";
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
-    }
-
-    public static int? DecodeCursor(string? cursor)
-    {
-        if (string.IsNullOrEmpty(cursor)) return null;
-
-        try
+        public enum CursorType
         {
-            var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(cursor));
-            var parts = decoded.Split('|');
-            if (parts.Length == 2 && parts[0] == "POST" && int.TryParse(parts[1], out var id))
+            Post,
+            User
+        }
+
+        public static string EncodeCursor(CursorType type, int id)
+        {
+            var raw = $"{type.ToString().ToUpper()}|{id}";
+            return Convert.ToBase64String(Encoding.UTF8.GetBytes(raw));
+        }
+
+        public static (CursorType? Type, int? Id) DecodeCursor(string? cursor)
+        {
+            if (string.IsNullOrEmpty(cursor)) return (null, null);
+
+            try
             {
-                return id;
+                var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(cursor));
+                var parts = decoded.Split('|');
+
+                if (parts.Length == 2 &&
+                    Enum.TryParse(parts[0], true, out CursorType type) &&
+                    int.TryParse(parts[1], out var id))
+                {
+                    return (type, id);
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Invalid cursor: {ex.Message}");
+            }
+            
+            return (null, null);
         }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Invalid cursor: {ex.Message}");
-        }
-        return null;
     }
-}
 
 }

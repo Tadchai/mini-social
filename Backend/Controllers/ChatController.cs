@@ -120,12 +120,12 @@ namespace Backend.Controllers
                 var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
                 var queryConversation = _context.ConversationUsers
-                                        .Where(cu => cu.UserId == currentUserId || cu.UserId == request.targetUserId)
+                                        .Where(cu => cu.UserId == currentUserId || cu.UserId == request.TargetUserId)
                                         .GroupBy(cu => cu.ConversationId)
                                         .Where(g =>
                                             g.Count() == 2 &&
                                             g.Any(cu => cu.UserId == currentUserId) &&
-                                            g.Any(cu => cu.UserId == request.targetUserId)
+                                            g.Any(cu => cu.UserId == request.TargetUserId)
                                         )
                                         .Select(g => g.Key);
                 var conversationId = await queryConversation.SingleOrDefaultAsync();
@@ -135,7 +135,7 @@ namespace Backend.Controllers
                 }
 
                 var targetUsername = await _context.Users
-                                    .Where(u => u.Id == request.targetUserId)
+                                    .Where(u => u.Id == request.TargetUserId)
                                     .Select(u => u.Username)
                                     .SingleAsync();
 
@@ -152,7 +152,7 @@ namespace Backend.Controllers
                 var conversationUsers = new List<ConversationUser>
                 {
                     new ConversationUser { ConversationId = conversationModel.Id, UserId = currentUserId, JoinedAt = DateTime.Now },
-                    new ConversationUser { ConversationId = conversationModel.Id, UserId = request.targetUserId, JoinedAt = DateTime.Now }
+                    new ConversationUser { ConversationId = conversationModel.Id, UserId = request.TargetUserId, JoinedAt = DateTime.Now }
                 };
 
                 await _context.ConversationUsers.AddRangeAsync(conversationUsers);

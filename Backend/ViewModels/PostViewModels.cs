@@ -10,37 +10,25 @@ namespace Backend.ViewModels
         public List<IFormFile>? Image { get; set; }
         public string? Content { get; set; }
     }
-
     public class UpdatePostRequest
     {
         public int PostId { get; set; }
-        public string Content { get; set; }
+        public string Content { get; set; } = string.Empty;
     }
-
     public class DeletePostRequest
     {
         public int PostId { get; set; }
     }
-
-    public class GetByIdResponse<T>
+    public class PostResponse
     {
         public int Id { get; set; }
-        public string Content { get; set; }
-        public List<T> ImageUrl { get; set; }
+        public string? Content { get; set; }
+        public List<ImageResponse>? ImageUrl { get; set; }
         public DateTime CreatedAt { get; set; }
     }
-
     public class ImageResponse
     {
-        public int Id { get; set;}
-        public string ImageUrl { get; set; }
-    }
-
-    public class GetByIdRequest
-    {
-        public int UserId { get; set; }
-        public DateTime? LastCreatedAt { get; set; }
-        public int? LastId { get; set; }
-        public int PageSize { get; set; }
+        public int Id { get; set; }
+        public string ImageUrl { get; set; } = string.Empty;
     }
 }
