@@ -11,7 +11,7 @@ namespace Backend.ViewModels
         Accepted,
         Rejected
     }
-    public class FollowRequest
+    public class RequestFollowRequest
     {
         public int FollowerId { get; set; }
         public int FollowingId { get; set; }

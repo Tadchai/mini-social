@@ -21,22 +21,14 @@ namespace Backend.ViewModels
         public string Message { get; set; } = string.Empty;
         public HttpStatusCode StatusCode { get; set; }
     }
-    public class ApiWithDataResponse<T> : ApiResponse
+    public class ApiResponse<T> : ApiResponse
     {
         public T? Data { get; set; }
     }
-    public class ApiWithIdResponse : ApiResponse
+    public class IdResponse : ApiResponse<int> { }
+    public class TokenResponse : ApiResponse<string> { }
+    public class PagedResponse<T> : ApiResponse<List<T>>
     {
-        public int Id { get; set; }
-    }
-    public class ApiWithTokenResponse : ApiResponse
-    {
-        public string Token { get; set; } = string.Empty;
-    }
-    public class ApiWithPagedResponse<T> : ApiResponse
-    {
-        public List<T>? Data { get; set; }
-
         public LastCursor? LastCursor { get; set; }
         public bool HasNextPage { get; set; }
     }

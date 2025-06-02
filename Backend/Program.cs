@@ -1,6 +1,8 @@
 using System.Text;
 using Backend.Hubs;
 using Backend.Models;
+using Backend.Services;
+using Backend.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,6 +21,14 @@ builder.Services.AddDbContext<MiniSocialContext>(options =>
         new MySqlServerVersion(new Version(8, 2, 0))
     );
 });
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<ICursorService, CursorService>();
+builder.Services.AddScoped<IFollowService, FollowService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IPasswordHasher, PasswordHasher>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<ISearchService, SearchService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
