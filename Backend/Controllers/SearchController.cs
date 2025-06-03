@@ -15,9 +15,9 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Posts([FromQuery] string q, [FromQuery] string? cursor)
+        public async Task<IActionResult> Posts([FromQuery] string q, [FromQuery] string? cursor, [FromQuery] int pageSize = 5)
         {
-            var result = await _searchService.SearchPostsAsync(q, cursor);
+            var result = await _searchService.SearchPostsAsync(q, cursor, pageSize);
             return new JsonResult(result);
         }
     }

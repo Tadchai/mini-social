@@ -16,12 +16,10 @@ namespace Backend.Services
             _cursorService = cursorService;
         }
 
-        public async Task<ApiResponse<List<PostResponse>>> SearchPostsAsync(string q, string? cursor)
+        public async Task<ApiResponse<List<PostResponse>>> SearchPostsAsync(string q, string? cursor, int pageSize)
         {
             if (string.IsNullOrWhiteSpace(q))
                 return new ApiResponse<List<PostResponse>> { Data = null, Message = "Query string 'q' is required.", StatusCode = HttpStatusCode.BadRequest }; ;
-
-            const int pageSize = 10;
 
             var query = _context.Posts.Where(p => EF.Functions.Like(p.Content, $"%{q}%"));
 
@@ -32,7 +30,7 @@ namespace Backend.Services
                 {
                     return new ApiResponse<List<PostResponse>> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
                 }
-                query = query.Where(p => p.Id < payload.Id);
+                query = query.Where(m => m.CreateAt < payload.CreatedAt || (m.CreateAt == payload.CreatedAt && m.Id < payload.Id));
             }
 
             var posts = await (from p in query
@@ -82,7 +80,7 @@ namespace Backend.Services
             return new PagedResponse<PostResponse>
             {
                 Data = data,
-                LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
+                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.Post, Id = data.Last().Id, CreatedAt = data.Last().CreatedAt }) : null,
                 HasNextPage = hasNextPage,
                 Message = "Search Posts successfully.",
                 StatusCode = HttpStatusCode.OK

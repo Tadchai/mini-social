@@ -18,18 +18,18 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> My(DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
+        public async Task<IActionResult> My([FromQuery] string? cursor, [FromQuery] int pageSize = 5)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _postService.GetByIdAsync(userId, lastCreatedAt, lastId, pageSize);
+            var result = await _postService.GetByIdAsync(userId, cursor, pageSize);
             return new JsonResult(result);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Follow(DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 3)
+        public async Task<IActionResult> Follow([FromQuery] string? cursor, [FromQuery] int pageSize = 5)
         {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var result = await _postService.GetByFollowAsync(userId, lastCreatedAt, lastId, pageSize);
+            var result = await _postService.GetByFollowAsync(userId, cursor, pageSize);
             return new JsonResult(result);
         }
 

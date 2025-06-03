@@ -17,9 +17,9 @@ namespace Backend.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Messages([FromQuery] int groupId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 5)
+        public async Task<IActionResult> Messages([FromQuery] int groupId, [FromQuery] string? cursor, [FromQuery] int pageSize = 5)
         {
-            var result = await _groupService.GetMessagesAsync(groupId, lastCreatedAt, lastId);
+            var result = await _groupService.GetMessagesAsync(groupId, cursor, pageSize);
             return new JsonResult(result);
         }
 

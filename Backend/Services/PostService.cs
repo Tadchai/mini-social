@@ -2,6 +2,7 @@ using Backend.Models;
 using Backend.Services.Interfaces;
 using Backend.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static Backend.Services.CursorService;
 
 namespace Backend.Services
 {
@@ -9,10 +10,12 @@ namespace Backend.Services
     {
         private readonly MiniSocialContext _context;
         private readonly IConfiguration _configuration;
-        public PostService(MiniSocialContext context, IConfiguration configuration)
+        private readonly ICursorService _cursorService;
+        public PostService(MiniSocialContext context, IConfiguration configuration, ICursorService cursorService)
         {
             _context = context;
             _configuration = configuration;
+            _cursorService = cursorService;
         }
         public async Task<ApiResponse> CreatePostAsync(CreatePostRequest request, int userId, HttpRequest httpRequest)
         {
@@ -108,15 +111,20 @@ namespace Backend.Services
             }
         }
 
-        public async Task<PagedResponse<PostResponse>> GetByIdAsync(int userId, DateTime? lastCreatedAt, int? lastId, int pageSize)
+        public async Task<PagedResponse<PostResponse>> GetByIdAsync(int userId, string? cursor, int pageSize)
         {
             var queryPost = from p in _context.Posts
                             where p.UserId == userId
                             select p;
 
-            if (lastCreatedAt.HasValue && lastId.HasValue)
+            if (cursor != null)
             {
-                queryPost = queryPost.Where(p => p.CreateAt < lastCreatedAt.Value || (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value));
+                var payload = _cursorService.DecodeCursor(cursor);
+                if (payload == null || payload.Type != CursorType.Post)
+                {
+                    return new PagedResponse<PostResponse> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
+                }
+                queryPost = queryPost.Where(p => p.CreateAt < payload.CreatedAt || (p.CreateAt == payload.CreatedAt && p.Id < payload.Id));
             }
 
             var posts = await (from p in queryPost
@@ -166,14 +174,14 @@ namespace Backend.Services
             return new PagedResponse<PostResponse>
             {
                 Data = data,
-                LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
+                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.Post, Id = data.Last().Id, CreatedAt = data.Last().CreatedAt }) : null,
                 HasNextPage = hasNextPage,
                 Message = "Posts retrieved successfully.",
                 StatusCode = HttpStatusCode.OK
             };
         }
 
-        public async Task<PagedResponse<PostResponse>> GetByFollowAsync(int userId, DateTime? lastCreatedAt, int? lastId, int pageSize)
+        public async Task<PagedResponse<PostResponse>> GetByFollowAsync(int userId, string? cursor, int pageSize)
         {
             var queryPost = from p in _context.Posts
                             where _context.Follows
@@ -182,9 +190,14 @@ namespace Backend.Services
                                 .Contains(p.UserId)
                             select p;
 
-            if (lastCreatedAt.HasValue && lastId.HasValue)
+            if (cursor != null)
             {
-                queryPost = queryPost.Where(p => p.CreateAt < lastCreatedAt.Value || (p.CreateAt == lastCreatedAt.Value && p.Id < lastId.Value));
+                var payload = _cursorService.DecodeCursor(cursor);
+                if (payload == null || payload.Type != CursorType.Post)
+                {
+                    return new PagedResponse<PostResponse> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
+                }
+                queryPost = queryPost.Where(p => p.CreateAt < payload.CreatedAt || (p.CreateAt == payload.CreatedAt && p.Id < payload.Id));
             }
 
             var posts = await (from p in queryPost
@@ -234,7 +247,7 @@ namespace Backend.Services
             return new PagedResponse<PostResponse>
             {
                 Data = data,
-                LastCursor = data.Any() ? new LastCursor { CreatedAt = data.Last().CreatedAt, Id = data.Last().Id } : null,
+                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.Post, Id = data.Last().Id, CreatedAt = data.Last().CreatedAt }) : null,
                 HasNextPage = hasNextPage,
                 Message = "Posts retrieved successfully.",
                 StatusCode = HttpStatusCode.OK

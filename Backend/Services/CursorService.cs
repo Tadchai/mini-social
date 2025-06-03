@@ -9,7 +9,8 @@ namespace Backend.Services
         public enum CursorType
         {
             Post,
-            User
+            User,
+            Group
         }
         public class CursorPayload
         {

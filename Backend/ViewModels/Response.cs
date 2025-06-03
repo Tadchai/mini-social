@@ -29,12 +29,7 @@ namespace Backend.ViewModels
     public class TokenResponse : ApiResponse<string> { }
     public class PagedResponse<T> : ApiResponse<List<T>>
     {
-        public LastCursor? LastCursor { get; set; }
+        public string? LastCursor { get; set; }
         public bool HasNextPage { get; set; }
-    }
-    public class LastCursor
-    {
-        public int Id { get; set; }
-        public DateTime CreatedAt { get; set; }
     }
 }

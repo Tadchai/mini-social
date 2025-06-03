@@ -2,15 +2,18 @@ using Backend.Models;
 using Backend.Services.Interfaces;
 using Backend.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using static Backend.Services.CursorService;
 
 namespace Backend.Services
 {
     public class GroupService : IGroupService
     {
         private readonly MiniSocialContext _context;
-        public GroupService(MiniSocialContext context)
+        private readonly ICursorService _cursorService;
+        public GroupService(MiniSocialContext context, ICursorService cursorService)
         {
             _context = context;
+            _cursorService = cursorService;
         }
 
         public async Task<ApiResponse> CreateGroupAsync(CreateGroupRequest request)
@@ -113,15 +116,20 @@ namespace Backend.Services
 
         }
 
-        public async Task<PagedResponse<MessageResponse>> GetMessagesAsync(int groupId, DateTime? lastCreatedAt = null, int? lastId = null, int pageSize = 5)
+        public async Task<PagedResponse<MessageResponse>> GetMessagesAsync(int groupId, string? cursor, int pageSize)
         {
             var queryMessage = from m in _context.Messages
                                where m.ConversationId == groupId
                                select m;
 
-            if (lastCreatedAt.HasValue && lastId.HasValue)
+            if (cursor != null)
             {
-                queryMessage = queryMessage.Where(m => m.CreatedAt < lastCreatedAt.Value || (m.CreatedAt == lastCreatedAt.Value && m.Id < lastId.Value));
+                var payload = _cursorService.DecodeCursor(cursor);
+                if (payload == null || payload.Type != CursorType.Group)
+                {
+                    return new PagedResponse<MessageResponse> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
+                }
+                queryMessage = queryMessage.Where(m => m.CreatedAt < payload.CreatedAt || (m.CreatedAt == payload.CreatedAt && m.Id < payload.Id));
             }
 
             var messages = await (from m in queryMessage
@@ -154,11 +162,7 @@ namespace Backend.Services
             return new PagedResponse<MessageResponse>
             {
                 Data = data,
-                LastCursor = new LastCursor
-                {
-                    CreatedAt = lastMessage.CreatedAt,
-                    Id = lastMessage.Id
-                },
+                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.Group, Id = data.Last().Id, CreatedAt = data.Last().CreatedAt }) : null,
                 HasNextPage = hasNextPage,
                 Message = "Message retrieved successfully.",
                 StatusCode = HttpStatusCode.OK
