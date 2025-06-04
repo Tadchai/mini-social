@@ -20,7 +20,7 @@ namespace Backend.Services.Interfaces
                               select new GetFollowResponse
                               {
                                   UserId = u.Id,
-                                  UserName = u.Username
+                                  Username = u.Username
                               };
             var resultFollow = await queryFollow.ToListAsync();
 
