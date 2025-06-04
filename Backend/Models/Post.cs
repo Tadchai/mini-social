@@ -11,9 +11,11 @@ public partial class Post
 
     public string? Content { get; set; }
 
-    public DateTime CreateAt { get; set; }
+    public DateTime CreatedAt { get; set; }
 
-    public DateTime? UpdateAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual ICollection<PostImage> PostImages { get; set; } = new List<PostImage>();
+
+    public virtual User User { get; set; } = null!;
 }

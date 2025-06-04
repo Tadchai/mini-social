@@ -16,4 +16,8 @@ public partial class Follow
     public DateTime CreatedAt { get; set; }
 
     public DateTime? UpdatedAt { get; set; }
+
+    public virtual User Follower { get; set; } = null!;
+
+    public virtual User Following { get; set; } = null!;
 }

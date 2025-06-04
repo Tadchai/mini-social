@@ -18,4 +18,14 @@ public partial class User
     public string? ProfilePic { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public virtual ICollection<ConversationUser> ConversationUsers { get; set; } = new List<ConversationUser>();
+
+    public virtual ICollection<Follow> FollowFollowers { get; set; } = new List<Follow>();
+
+    public virtual ICollection<Follow> FollowFollowings { get; set; } = new List<Follow>();
+
+    public virtual ICollection<Message> Messages { get; set; } = new List<Message>();
+
+    public virtual ICollection<Post> Posts { get; set; } = new List<Post>();
 }

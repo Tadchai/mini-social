@@ -20,5 +20,12 @@ namespace Backend.Controllers
             var result = await _searchService.SearchPostsAsync(q, cursor, pageSize);
             return new JsonResult(result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Users([FromQuery] string q, [FromQuery] string? cursor, [FromQuery] int pageSize = 5)
+        {
+            var result = await _searchService.SearchUsersAsync(q, cursor, pageSize);
+            return new JsonResult(result);
+        }
     }
 }

@@ -36,7 +36,7 @@ namespace Backend.Services
                 {
                     UserId = userId,
                     Content = request.Content,
-                    CreateAt = DateTime.Now
+                    CreatedAt = DateTime.Now
                 };
                 await _context.Posts.AddAsync(postModel);
                 await _context.SaveChangesAsync();
@@ -75,7 +75,7 @@ namespace Backend.Services
             {
                 var post = await _context.Posts.SingleAsync(p => p.Id == request.PostId);
                 post.Content = request.Content;
-                post.UpdateAt = DateTime.Now;
+                post.UpdatedAt = DateTime.Now;
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
@@ -124,16 +124,19 @@ namespace Backend.Services
                 {
                     return new PagedResponse<PostResponse> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
                 }
-                queryPost = queryPost.Where(p => p.CreateAt < payload.CreatedAt || (p.CreateAt == payload.CreatedAt && p.Id < payload.Id));
+                queryPost = queryPost.Where(p => p.CreatedAt < payload.CreatedAt || (p.CreatedAt == payload.CreatedAt && p.Id < payload.Id));
             }
 
             var posts = await (from p in queryPost
-                               orderby p.CreateAt descending, p.Id descending
+                               join u in _context.Users on p.UserId equals u.Id
+                               orderby p.CreatedAt descending, p.Id descending
                                select new
                                {
                                    Id = p.Id,
                                    Content = p.Content,
-                                   CreatedAt = p.CreateAt
+                                   UserId = u.Id,
+                                   Username = u.Username,
+                                   CreatedAt = p.CreatedAt
                                })
                                .Take(pageSize + 1)
                                .ToListAsync();
@@ -164,6 +167,8 @@ namespace Backend.Services
                             Id = p.Id,
                             Content = p.Content,
                             ImageUrl = postDic[p.Id],
+                            UserId = p.Id,
+                            Username = p.Username,
                             CreatedAt = p.CreatedAt
                         })
                         .Take(pageSize)
@@ -197,16 +202,19 @@ namespace Backend.Services
                 {
                     return new PagedResponse<PostResponse> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
                 }
-                queryPost = queryPost.Where(p => p.CreateAt < payload.CreatedAt || (p.CreateAt == payload.CreatedAt && p.Id < payload.Id));
+                queryPost = queryPost.Where(p => p.CreatedAt < payload.CreatedAt || (p.CreatedAt == payload.CreatedAt && p.Id < payload.Id));
             }
 
             var posts = await (from p in queryPost
-                               orderby p.CreateAt descending, p.Id descending
+                               join u in _context.Users on p.UserId equals u.Id
+                               orderby p.CreatedAt descending, p.Id descending
                                select new
                                {
                                    Id = p.Id,
                                    Content = p.Content,
-                                   CreatedAt = p.CreateAt
+                                   UserId = u.Id,
+                                   Username = u.Username,
+                                   CreatedAt = p.CreatedAt
                                })
                                .Take(pageSize + 1)
                                .ToListAsync();
@@ -237,6 +245,8 @@ namespace Backend.Services
                             Id = p.Id,
                             Content = p.Content,
                             ImageUrl = postDic[p.Id],
+                            UserId = p.Id,
+                            Username = p.Username,
                             CreatedAt = p.CreatedAt
                         })
                         .Take(pageSize)

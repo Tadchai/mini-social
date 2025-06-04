@@ -16,4 +16,8 @@ public partial class Message
     public int Type { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public virtual Conversation Conversation { get; set; } = null!;
+
+    public virtual User Sender { get; set; } = null!;
 }
