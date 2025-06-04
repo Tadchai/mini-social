@@ -66,9 +66,9 @@ function closeModal() {
 async function login() {
   try {
     const result = await loginUser(username.value, password.value)
-    if (result.statusCode === 200 && result.token) {
+    if (result.statusCode === 200 && result.data) {
       alert(result.message)
-      localStorage.setItem('token', result.token)
+      localStorage.setItem('token', result.data)
       router.push('/')
     } else {
       alert(result.message)

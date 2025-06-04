@@ -1,5 +1,5 @@
 import { jwtDecode } from 'jwt-decode'
-import type { ApiResponse, ApiWithTokenResponse } from '../types/Response'
+import type { ApiResponseBase, TokenResponse } from '../types/Response'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -14,7 +14,7 @@ export function isTokenValid(token: string | null): boolean {
   }
 }
 
-export async function loginUser(username: string, password: string): Promise<ApiWithTokenResponse> {
+export async function loginUser(username: string, password: string): Promise<TokenResponse> {
   const response = await fetch(`${API_URL}/Auth/Login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -23,7 +23,7 @@ export async function loginUser(username: string, password: string): Promise<Api
   return await response.json()
 }
 
-export async function registerUser(username: string, email: string, password: string, confirmPassword: string): Promise<ApiResponse> {
+export async function registerUser(username: string, email: string, password: string, confirmPassword: string): Promise<ApiResponseBase> {
   const response = await fetch(`${API_URL}/Auth/Register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

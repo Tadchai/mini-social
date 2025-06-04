@@ -1,32 +1,32 @@
 import type { Post } from "@/types/Post"
-import type { ApiResponse, ApiWithPagedResponse, LastCursor } from "@/types/Response"
+import type { ApiResponseBase, PagedResponse } from "@/types/Response"
 
 const API_URL = import.meta.env.VITE_API_URL
 
-export async function createPost(content: null | string, selectedImages: File[]): Promise<ApiResponse> {
+export async function createPost(content: null | string, selectedImages: File[]): Promise<ApiResponseBase> {
   const token = localStorage.getItem('token')
   const formData = new FormData()
-    if (content !== null) {
-      formData.append('content', content)
-    }
-    selectedImages.forEach((file) => {
-      formData.append('Image', file)
-    })
+  if (content !== null) {
+    formData.append('content', content)
+  }
+  selectedImages.forEach((file) => {
+    formData.append('Image', file)
+  })
 
   const response = await fetch(`${API_URL}/Post/Create`, {
     method: 'POST',
     headers: { Authorization: `Bearer ${token}` },
-      body: formData,
+    body: formData,
   })
   return await response.json()
 }
 
-export async function fetchFollowPosts( pageSize: number, lastCursor?: LastCursor): Promise<ApiWithPagedResponse<Post[]>> {
+export async function fetchFollowPosts(pageSize: number, lastCursor?: string): Promise<PagedResponse<Post[]>> {
   const token = localStorage.getItem('token')
-  let url = `${API_URL}/Post/GetByFollow?pageSize=${pageSize}`
+  let url = `${API_URL}/Post/Follow?pageSize=${pageSize}`
 
   if (lastCursor) {
-    url += `&lastCreatedAt=${encodeURIComponent(lastCursor.createdAt)}&lastId=${lastCursor.id}`
+    url += `&lastCursor=${lastCursor}`
   }
 
   const response = await fetch(url, {
@@ -35,12 +35,12 @@ export async function fetchFollowPosts( pageSize: number, lastCursor?: LastCurso
   return await response.json()
 }
 
-export async function fetchMyPosts( pageSize: number, lastCursor?: LastCursor): Promise<ApiWithPagedResponse<Post[]>> {
+export async function fetchMyPosts(pageSize: number, lastCursor?: string): Promise<PagedResponse<Post[]>> {
   const token = localStorage.getItem('token')
-  let url = `${API_URL}/Post/GetById?pageSize=${pageSize}`
+  let url = `${API_URL}/Post/My?pageSize=${pageSize}`
 
   if (lastCursor) {
-    url += `&lastCreatedAt=${encodeURIComponent(lastCursor.createdAt)}&lastId=${lastCursor.id}`
+    url += `&lastCursor=${lastCursor}`
   }
 
   const response = await fetch(url, {
