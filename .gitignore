@@ -92,3 +92,6 @@ ER-mini-social.drawio
 
 #image
 Backend/wwwroot
+
+#tailwindsetup
+tailwind.config.js
