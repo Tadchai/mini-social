@@ -1,32 +1,41 @@
 <template>
   <div>
-    <button @click="openModal">Create Your Post !!</button>
-    <Modal ref="modal">
-      <h3>Create Post</h3>
-      <label>content</label><br />
-      <input type="text" v-model="content" />
-      <div class="upload-section">
-        <input type="file" multiple accept="image/*" @change="handleFileChange" />
+    <button @click="openModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      Create Your Post !!
+    </button>
 
-        <div v-if="previewImages.length" class="preview-grid">
-          <img
-            v-for="(img, index) in previewImages"
-            :key="index"
-            :src="img"
-            class="preview-image"
-          />
+    <Modal ref="modal">
+      <h3 class="text-xl font-semibold mb-4">Create Post</h3>
+
+      <label class="block text-sm font-medium mb-1">Content</label>
+      <input type="text" v-model="content"
+        class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+
+      <div class="my-5">
+        <input type="file" multiple accept="image/*" @change="handleFileChange" class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
+                 file:rounded-md file:border-0 file:text-sm file:font-semibold
+                 file:bg-blue-500 file:text-white hover:file:bg-blue-600" />
+
+        <div v-if="previewImages.length" class="flex flex-wrap gap-2 mt-3">
+          <img v-for="(img, index) in previewImages" :key="index" :src="img"
+            class="w-[120px] h-[120px] object-cover rounded shadow-sm" />
         </div>
       </div>
-      <button @click="CreatePost">create post</button>
-      <button @click="closeModal">close</button>
+
+      <button @click="CreatePost" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 mr-2">
+        Create Post
+      </button>
+      <button @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
+        Close
+      </button>
     </Modal>
 
     <div>
       <PostItem v-for="(post, index) in posts" :key="index" :post="post" />
-      <div ref="loadMoreTrigger" style="height: 1px"></div>
+      <div ref="loadMoreTrigger" class="h-px"></div>
     </div>
 
-    <div v-if="isLoading">
+    <div v-if="isLoading" class="mt-4 text-center text-gray-600">
       <p>กำลังโหลด...</p>
     </div>
   </div>
@@ -132,22 +141,3 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
-<style scoped>
-.upload-section {
-  margin: 20px;
-}
-.preview-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-.preview-image {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-}
-</style>

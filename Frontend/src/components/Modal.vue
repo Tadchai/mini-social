@@ -1,3 +1,20 @@
+<template>
+  <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center">
+    <div class=" bg-white p-5 rounded-lg w-full max-w-3xl min-w-md">
+
+      <div class="text-xl font-semibold mb-4">
+        <slot name="header"></slot>
+      </div>
+
+      <slot></slot>
+
+      <div class=" mt-2.5 text-right">
+        <slot name="footer"></slot>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup lang="ts">
 import { ref, defineExpose } from 'vue'
 
@@ -12,39 +29,3 @@ function closeModal() {
 
 defineExpose({ openModal, closeModal })
 </script>
-<template>
-  <div class="modal-overlay" v-if="showModal">
-    <div class="modal">
-      <slot></slot>
-
-      <div class="modal-footer">
-        <slot name="footer"></slot>
-      </div>
-    </div>
-  </div>
-</template>
-
-<style scoped>
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal {
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
-  max-width: 400px;
-  width: 100%;
-}
-.modal-footer {
-  margin-top: 10px;
-  text-align: right;
-}
-</style>

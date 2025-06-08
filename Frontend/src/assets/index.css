@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+.btn {
+  @apply bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600;
+}
+
+.input-text {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm
+         focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+.input-file {
+  @apply block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
+         file:rounded-md file:border-0 file:text-sm file:font-semibold
+         file:bg-blue-500 file:text-white hover:file:bg-blue-600;
+}

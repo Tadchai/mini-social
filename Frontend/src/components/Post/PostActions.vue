@@ -7,13 +7,16 @@
 </template>
 
 <script setup>
-const like = () => {
+const like = () =>
+{
   alert("Liked!");
 }
-const comment = () => {
+const comment = () =>
+{
   alert("Comment clicked!");
 }
-const share = () => {
+const share = () =>
+{
   alert("Shared!");
 }
 </script>

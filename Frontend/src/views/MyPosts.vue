@@ -3,23 +3,22 @@
     <h2>MyPosts</h2>
     <button @click="openModal">Create Your Post !!</button>
     <Modal ref="modal">
-      <h3>Create Post</h3>
-      <label>content</label><br />
-      <input type="text" v-model="content" />
-      <div class="upload-section">
-        <input type="file" multiple accept="image/*" @change="handleFileChange" />
+      <template #header> Create Post </template>
 
-        <div v-if="previewImages.length" class="preview-grid">
-          <img
-            v-for="(img, index) in previewImages"
-            :key="index"
-            :src="img"
-            class="preview-image"
-          />
+      <label>content</label><br />
+      <input class="input-text" type="text" v-model="content" />
+      <div class="m-5">
+        <input class="input-file" type="file" multiple accept="image/*" @change="handleFileChange" />
+
+        <div v-if="previewImages.length" class="flex flex-wrap gap-2.5 mt-2.5">
+          <img v-for="(img, index) in previewImages" :key="index" :src="img"
+            class="size-40 object-cover rounded-lg shadow-md" />
         </div>
       </div>
-      <button @click="CreatePost">create post</button>
-      <button @click="closeModal">close</button>
+      <template #footer>
+        <button @click="CreatePost" class="btn">create post</button>
+        <button @click="closeModal" class="btn">close</button>
+      </template>
     </Modal>
 
     <div>
@@ -133,22 +132,3 @@ onBeforeUnmount(() => {
   }
 })
 </script>
-
-<style scoped>
-.upload-section {
-  margin: 20px;
-}
-.preview-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 10px;
-}
-.preview-image {
-  width: 120px;
-  height: 120px;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
-}
-</style>

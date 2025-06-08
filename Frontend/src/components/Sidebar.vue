@@ -1,49 +1,31 @@
 <template>
-  <aside class="sidebar">
-    <ul>
-      <router-link to="/"><li>Home</li></router-link>
-      <router-link to="/about"><li>About</li></router-link>
-      <router-link to="/follow"><li>Follow</li></router-link>
-      <router-link to="/myposts"><li>MyPosts</li></router-link>
-      <li @click="logout">Logout</li>
-    </ul>
+  <aside class="w-1/4 bg-sky-900 text-white h-screen">
+    <div class="space-y-1">
+      <router-link to="/">
+        <div class="text-center py-2 hover:bg-sky-800">Home</div>
+      </router-link>
+      <router-link to="/about">
+        <div class="text-center py-2 hover:bg-sky-800">About</div>
+      </router-link>
+      <router-link to="/follow">
+        <div class="text-center py-2 hover:bg-sky-800">Follow</div>
+      </router-link>
+      <router-link to="/myposts">
+        <div class="text-center py-2 hover:bg-sky-800">MyPosts</div>
+      </router-link>
+      <div @click="logout" class="text-center py-2 cursor-pointer hover:bg-sky-800">Logout</div>
+    </div>
   </aside>
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router';
+import { useRouter } from 'vue-router'
 
-const router = useRouter();
+const router = useRouter()
 
-function logout(){
-  localStorage.removeItem('token');
+function logout()
+{
+  localStorage.removeItem('token')
   router.push('/login')
 }
 </script>
-
-<style scoped>
-.sidebar {
-  width: 200px;
-  background-color: #34495e;
-  color: white;
-  height: 100vh;
-}
-
-.sidebar ul {
-  list-style: none;
-  padding: 0;
-}
-
-.sidebar li {
-  text-align: center;
-  padding: 10px;
-}
-
-.sidebar li:hover {
-  background-color: #415e78;
-}
-a {
-  color: white;
-  text-decoration: none;
-}
-</style>

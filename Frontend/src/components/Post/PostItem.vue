@@ -1,5 +1,5 @@
 <template>
-  <div class="post">
+  <div class=" bg-white p-4 rounded-lg shadow-md mb-4">
     <!-- <PostHeader :user="post.user" :createdAt="post.createdAt" /> -->
     <PostContent :content="post.content" :imageUrl="post.imageUrl" />
     <PostActions />
@@ -15,13 +15,3 @@ defineProps({
   post: Object
 })
 </script>
-
-<style scoped>
-.post {
-  background-color: white;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-bottom: 16px;
-}
-</style>
