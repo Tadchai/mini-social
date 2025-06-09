@@ -106,7 +106,7 @@ namespace Backend.Services
                 {
                     return new ApiResponse<List<UserResponse>> { Message = "Invalid cursor.", StatusCode = HttpStatusCode.BadRequest };
                 }
-                query = query.Where(m => m.CreatedAt < payload.CreatedAt || (m.CreatedAt == payload.CreatedAt && m.Id < payload.Id));
+                query = query.Where(m => m.Id < payload.Id );
             }
 
             var users = await (from u in query
@@ -115,7 +115,6 @@ namespace Backend.Services
                                {
                                    Id = u.Id,
                                    Username = u.Username,
-                                   CreatedAt = u.CreatedAt
                                })
                                .Take(pageSize + 1)
                                .ToListAsync();
@@ -125,7 +124,6 @@ namespace Backend.Services
                         {
                             Id = u.Id,
                             Username = u.Username,
-                            CreatedAt = u.CreatedAt
                         })
                         .Take(pageSize)
                         .ToList();
@@ -135,7 +133,7 @@ namespace Backend.Services
             return new PagedResponse<UserResponse>
             {
                 Data = data,
-                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.Post, Id = data.Last().Id, CreatedAt = data.Last().CreatedAt }) : null,
+                LastCursor = data.Any() ? _cursorService.EncodeCursor(new CursorPayload { Type = CursorType.User, Id = data.Last().Id }) : null,
                 HasNextPage = hasNextPage,
                 Message = "Search Users successfully.",
                 StatusCode = HttpStatusCode.OK

@@ -1,5 +1,5 @@
 <template>
-  <aside class="w-1/4 bg-sky-900 text-white h-screen">
+  <div class="w-1/4 bg-sky-900 text-white h-screen">
     <div class="space-y-1">
       <router-link to="/">
         <div class="text-center py-2 hover:bg-sky-800">Home</div>
@@ -15,7 +15,7 @@
       </router-link>
       <div @click="logout" class="text-center py-2 cursor-pointer hover:bg-sky-800">Logout</div>
     </div>
-  </aside>
+  </div>
 </template>
 
 <script setup>

@@ -40,6 +40,7 @@ export async function CreatePrivate(targetUserId: number): Promise<IdResponse> {
   const url = new URL(`${API_URL}/Group/CreatePrivate`);
 
   const response = await fetch(url.toString(), {
+    method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',

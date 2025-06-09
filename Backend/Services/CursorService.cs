@@ -16,7 +16,7 @@ namespace Backend.Services
         {
             public CursorType Type { get; set; }
             public int Id { get; set; }
-            public DateTime CreatedAt { get; set; }
+            public DateTime? CreatedAt { get; set; }
         }
 
         public string EncodeCursor(CursorPayload payload)
