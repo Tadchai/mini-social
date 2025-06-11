@@ -30,13 +30,11 @@
       </button>
     </Modal>
 
-    <div>
+    <div v-if="isLoading" class="px-4 py-2 text-sm text-gray-500">Loading posts...</div>
+    <div v-else-if="errorMessage" class="px-4 py-2 text-red-400">{{ errorMessage }}</div>
+    <div v-else>
       <PostItem v-for="(post, index) in posts" :key="index" :post="post" />
       <div ref="loadMoreTrigger" class="h-px"></div>
-    </div>
-
-    <div v-if="isLoading" class="mt-4 text-center text-gray-600">
-      <p>กำลังโหลด...</p>
     </div>
   </div>
 </template>
@@ -58,7 +56,7 @@ const lastCursor = ref<null | string>(null)
 const isLoading = ref(false)
 const hasMore = ref(true)
 const loadMoreTrigger = ref<HTMLElement | null>(null)
-
+const errorMessage = ref<string | null>(null)
 const observer = ref<IntersectionObserver | null>(null)
 
 function openModal() {
@@ -72,7 +70,7 @@ function closeModal() {
   modal.value?.closeModal()
 }
 
-function handleFileChange(event) {
+function handleFileChange(event:any) {
   selectedImages.value = Array.from(event.target.files)
   previewImages.value = selectedImages.value.map((file) => URL.createObjectURL(file))
 }
@@ -102,7 +100,7 @@ async function fetchPosts(loadMore = false) {
     const result = await fetchFollowPosts(3, loadMore ? (lastCursor.value ?? undefined) : undefined)
 
     if (result.statusCode == 200) {
-      const newPosts: Post[] = result.data
+      const newPosts: Post[] = result.data ?? []
       if (loadMore) {
         posts.value.push(...newPosts)
       } else {
@@ -112,12 +110,12 @@ async function fetchPosts(loadMore = false) {
       hasMore.value = result.hasNextPage
       lastCursor.value = result.lastCursor ?? null
     } else {
-      console.error(result.message)
+      errorMessage.value = result.message ?? 'Something went wrong.'
     }
 
     isLoading.value = false
   } catch (err) {
-    console.error('Fetch error:', err)
+    errorMessage.value = (err as Error).message
   }
 }
 
