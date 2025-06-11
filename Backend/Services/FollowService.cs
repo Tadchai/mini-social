@@ -81,5 +81,35 @@ namespace Backend.Services.Interfaces
                 return new ApiResponse { Message = $"An error occurred: {ex.Message}", StatusCode = HttpStatusCode.InternalServerError };
             }
         }
+
+        public async Task<ApiResponse<List<UserResponse>>> GetContactAsync(int userId)
+        {
+            var query = (from c in _context.Conversations
+                         join cuSelf in _context.ConversationUsers on c.Id equals cuSelf.ConversationId
+                         where cuSelf.UserId == userId && !c.IsGroup
+
+                         join cuOther in _context.ConversationUsers on c.Id equals cuOther.ConversationId
+                         where cuOther.UserId != userId
+
+                         join u in _context.Users on cuOther.UserId equals u.Id
+
+                         join m in _context.Messages on c.Id equals m.ConversationId into messageGroup
+                         let lastMessage = messageGroup
+                             .OrderByDescending(m => m.CreatedAt)
+                             .FirstOrDefault()
+
+                         where lastMessage != null
+
+                         orderby lastMessage.CreatedAt descending
+
+                         select new UserResponse
+                         {
+                             Id = u.Id,
+                             Username = u.Username,
+                         });
+            var result = await query.Take(10).ToListAsync();
+
+            return new ApiResponse<List<UserResponse>> { Data = result, Message = "Get Contact successfully.", StatusCode = HttpStatusCode.OK };
+        }
     }
 }

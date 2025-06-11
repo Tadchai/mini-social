@@ -38,5 +38,13 @@ namespace Backend.Controllers
             var result = await _followService.AcceptAsync(request);
             return new JsonResult(result);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> Contact()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var result = await _followService.GetContactAsync(userId);
+            return new JsonResult(result);
+        }
     }
 }
