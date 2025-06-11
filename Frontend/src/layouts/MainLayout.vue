@@ -8,11 +8,12 @@
       <router-view />
     </main>
 
-    <Rightbar class="w-1/4 min-h-screen fixed top-14 right-0 bg-gray-900 text-white" />
+    <RightSidebar class="w-1/4 min-h-screen fixed top-14 right-0 bg-gray-900 text-white" />
   </div>
 </template>
 
 <script setup>
 import Sidebar from '../components/Sidebar.vue'
 import Navbar from '../components/Navbar.vue'
+import RightSidebar from '../components/RightSidebar.vue'
 </script>
