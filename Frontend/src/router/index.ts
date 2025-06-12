@@ -1,35 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isTokenValid } from '@/services/authService'
-import MainLayout from '@/layouts/MainLayout.vue'
-import AuthLayout from '@/layouts/AuthLayout.vue'
-import Login from '@/views/Login.vue'
-import Home from '@/views/Home.vue'
-import About from '@/views/About.vue'
-import ChatRoom from '@/views/ChatRoom.vue'
-import Follow from '@/views/Follow.vue'
-import MyPosts from '@/views/MyPosts.vue'
+import AuthLayout from '@/components/layouts/AuthLayout.vue'
+import LoginPage from '@/views/LoginPage.vue'
+import HomePage from '@/views/HomePage.vue'
+import AboutPage from '@/views/AboutPage.vue'
+import ChatRoomPage from '@/views/ChatRoomPage.vue'
+import FriendPage from '@/views/FriendPage.vue'
+import MyPostPage from '@/views/MyPostPage.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      component: MainLayout,
-      meta: { requiresAuth: true },
-      children: [
-        { path: '', component: Home },
-        { path: 'about', component: About },
-        { path: '/chat/:id', component: ChatRoom },
-        { path: 'follow', component: Follow },
-        { path: 'myposts', component: MyPosts}
-      ],
-    },
+    { path: '/', component: HomePage },
+    { path: '/about', component: AboutPage },
+    { path: '/chat/:id', component: ChatRoomPage },
+    { path: '/friends', component: FriendPage },
+    { path: '/myposts', component: MyPostPage},
     {
       path: '/login',
       component: AuthLayout,
-      children: [{ path: '', component: Login }],
-    },
-  ],
+      children: [{ path: '', component: LoginPage }],
+    }
+  ]
 })
 
 router.beforeEach((to, from, next) => {

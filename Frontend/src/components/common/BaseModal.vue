@@ -1,5 +1,5 @@
 <template>
-  <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center">
+  <div v-if="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-60">
     <div class=" bg-white p-5 rounded-lg w-full max-w-3xl min-w-md">
 
       <div class="text-xl font-semibold mb-4">

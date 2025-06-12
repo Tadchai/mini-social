@@ -1,10 +1,14 @@
 <template>
-  <div>
+  <MainLayout>
+    <template #sidebar>
+      <HomeSidebar />
+    </template>
+
     <button @click="openModal" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
       Create Your Post !!
     </button>
 
-    <Modal ref="modal">
+    <BaseModal ref="modal">
       <h3 class="text-xl font-semibold mb-4">Create Post</h3>
 
       <label class="block text-sm font-medium mb-1">Content</label>
@@ -12,9 +16,8 @@
         class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500" />
 
       <div class="my-5">
-        <input type="file" multiple accept="image/*" @change="handleFileChange" class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4
-                 file:rounded-md file:border-0 file:text-sm file:font-semibold
-                 file:bg-blue-500 file:text-white hover:file:bg-blue-600" />
+        <input type="file" multiple accept="image/*" @change="handleFileChange"
+          class="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-500 file:text-white hover:file:bg-blue-600" />
 
         <div v-if="previewImages.length" class="flex flex-wrap gap-2 mt-3">
           <img v-for="(img, index) in previewImages" :key="index" :src="img"
@@ -28,7 +31,7 @@
       <button @click="closeModal" class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">
         Close
       </button>
-    </Modal>
+    </BaseModal>
 
     <div v-if="isLoading" class="px-4 py-2 text-sm text-gray-500">Loading posts...</div>
     <div v-else-if="errorMessage" class="px-4 py-2 text-red-400">{{ errorMessage }}</div>
@@ -36,17 +39,25 @@
       <PostItem v-for="(post, index) in posts" :key="index" :post="post" />
       <div ref="loadMoreTrigger" class="h-px"></div>
     </div>
-  </div>
+
+    <template #rightsidebar>
+      <RightSidebar />
+    </template>
+  </MainLayout>
 </template>
 
 <script setup lang="ts">
-import Modal from '@/components/Modal.vue'
+import MainLayout from '@/components/layouts/MainLayout.vue';
+import HomeSidebar from '@/components/layouts/sidebars/HomeSidebar.vue';
+import RightSidebar from '@/components/common/RightSidebar.vue';
+import BaseModal from '@/components/common/BaseModal.vue';
 import PostItem from '@/components/Post/PostItem.vue'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import type { Post } from '../types/Post'
 import { createPost, fetchFollowPosts } from '../services/postService'
 
-const modal = useTemplateRef<InstanceType<typeof Modal>>('modal')
+
+const modal = useTemplateRef<InstanceType<typeof BaseModal>>('modal')
 
 const content = ref<null | string>(null)
 const selectedImages = ref([])
@@ -70,7 +81,7 @@ function closeModal() {
   modal.value?.closeModal()
 }
 
-function handleFileChange(event:any) {
+function handleFileChange(event: any) {
   selectedImages.value = Array.from(event.target.files)
   previewImages.value = selectedImages.value.map((file) => URL.createObjectURL(file))
 }

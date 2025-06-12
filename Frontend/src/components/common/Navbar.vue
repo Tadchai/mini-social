@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center">
     <div class="w-1/4 flex items-center">
-      <div class="text-white font-bold p-2.5">MiniSocial</div>
+      <div class="text-white font-bold p-2.5 hover:cursor-pointer" @click="goToHomePage">MiniSocial</div>
 
       <div class="relative w-full max-w-xs p-2.5" ref="searchBoxRef">
         <svg class="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-white" fill="none"
@@ -50,6 +50,10 @@ onClickOutside(searchBoxRef, () => {
 
 function goToProfile(userId: number) {
   router.push(`/profile/${userId}`)
+}
+
+function goToHomePage() {
+  router.push(`/`)
 }
 
 async function performSearch() {

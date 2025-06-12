@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <CustomLayout>
+    <template #sidebar>
+      <FriendSidebar />
+    </template>
+
     <div v-if="isLoading">Loading messages...</div>
     <div v-else-if="errorMessage">{{ errorMessage }}</div>
 
@@ -11,15 +15,19 @@
       {{ follow.username }}
       <button @click="createPrivateConversation(follow.userId)">Chat</button>
     </div>
-  </div>
+  </CustomLayout>
 </template>
 
 <script setup lang="ts">
+import CustomLayout from '@/components/layouts/CustomLayout.vue'
+import FriendSidebar from '@/components/layouts/sidebars/FriendSidebar.vue'
 import { useRouter } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { GetFollow } from '../services/followService'
 import type { Follow } from '../types/Follow'
 import { CreatePrivate } from '../services/groupService'
+
+
 
 const router = useRouter()
 

@@ -1,8 +1,12 @@
 <template>
-  <div>
+  <MainLayout>
+    <template #sidebar>
+      <HomeSidebar />
+    </template>
+
     <h2>MyPosts</h2>
     <button @click="openModal">Create Your Post !!</button>
-    <Modal ref="modal">
+    <BaseModal ref="modal">
       <template #header> Create Post </template>
 
       <label>content</label><br />
@@ -19,7 +23,7 @@
         <button @click="CreatePost" class="btn">create post</button>
         <button @click="closeModal" class="btn">close</button>
       </template>
-    </Modal>
+    </BaseModal>
 
     <div>
       <PostItem v-for="(post, index) in posts" :key="index" :post="post" />
@@ -29,17 +33,24 @@
     <div v-if="isLoading">
       <p>กำลังโหลด...</p>
     </div>
-  </div>
+
+    <template #rightsidebar>
+      <RightSidebar />
+    </template>
+  </MainLayout>
 </template>
 
 <script setup lang="ts">
-import Modal from '@/components/Modal.vue'
+import MainLayout from '@/components/layouts/MainLayout.vue';
+import HomeSidebar from '@/components/layouts/sidebars/HomeSidebar.vue';
+import RightSidebar from '@/components/common/RightSidebar.vue';
+import BaseModal from '@/components/common/BaseModal.vue';
 import PostItem from '@/components/Post/PostItem.vue'
 import { onBeforeUnmount, onMounted, ref, useTemplateRef } from 'vue'
 import type { Post } from '../types/Post'
 import { createPost, fetchMyPosts } from '../services/postService'
 
-const modal = useTemplateRef<InstanceType<typeof Modal>>('modal')
+const modal = useTemplateRef<InstanceType<typeof BaseModal>>('modal')
 
 const content = ref<null | string>(null)
 const selectedImages = ref([])
@@ -93,7 +104,7 @@ async function fetchPosts(loadMore = false) {
     const result = await fetchMyPosts(3, loadMore ? (lastCursor.value ?? undefined) : undefined)
 
     if (result.statusCode == 200) {
-      const newPosts: Post[] = result.data
+      const newPosts: Post[] = result.data ?? []
       if (loadMore) {
         posts.value.push(...newPosts)
       } else {

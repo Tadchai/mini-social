@@ -1,5 +1,5 @@
 <template>
-  <div class="w-1/4 bg-sky-900 text-white h-screen">
+  <div>
     <div class="space-y-1">
       <router-link to="/">
         <div class="text-center py-2 hover:bg-sky-800">Home</div>
@@ -7,8 +7,8 @@
       <router-link to="/about">
         <div class="text-center py-2 hover:bg-sky-800">About</div>
       </router-link>
-      <router-link to="/follow">
-        <div class="text-center py-2 hover:bg-sky-800">Follow</div>
+      <router-link to="/friends">
+        <div class="text-center py-2 hover:bg-sky-800">Friend</div>
       </router-link>
       <router-link to="/myposts">
         <div class="text-center py-2 hover:bg-sky-800">MyPosts</div>

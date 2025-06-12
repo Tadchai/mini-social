@@ -25,7 +25,7 @@
       Register
     </button>
 
-    <Modal ref="modal">
+    <BaseModal ref="modal">
       <h2 class="text-xl font-semibold mb-4">Register</h2>
       <form @submit.prevent="Register" class="space-y-4">
         <div>
@@ -62,18 +62,18 @@
           </button>
         </div>
       </form>
-    </Modal>
+    </BaseModal>
   </div>
 </template>
 
 <script setup lang="ts">
+import BaseModal from '@/components/common/BaseModal.vue'
 import { ref, useTemplateRef } from 'vue'
 import { useRouter } from 'vue-router'
-import Modal from '../components/Modal.vue'
 import { loginUser, registerUser } from '../services/authService'
 
 const router = useRouter()
-const modal = useTemplateRef<InstanceType<typeof Modal>>('modal')
+const modal = useTemplateRef<InstanceType<typeof BaseModal>>('modal')
 
 const username = ref<string>('')
 const password = ref<string>('')
